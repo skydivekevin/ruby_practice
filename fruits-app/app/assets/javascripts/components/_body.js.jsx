@@ -8,6 +8,8 @@ class Body extends React.Component {
     this.addNewFruit = this.addNewFruit.bind(this)
     this.handleDelete = this.handleDelete.bind(this)
     this.deleteFruit = this.deleteFruit.bind(this)
+    this.handleUpdate = this.handleUpdate.bind(this)
+    this.updateFruit = this.updateFruit.bind(this)
   }
 
   //////////////////////////Submit Function//////////////////////////////////
@@ -36,9 +38,16 @@ class Body extends React.Component {
         'Content-Type': 'application/json'
       }
     }).then((response) => { 
-        console.log('Item was deleted!')
+      this.deleteFruit(id)
       })
   };
+
+  deleteFruit(id){
+    newFruits = this.state.fruits.filter((fruit) => fruit.id !== id)
+    this.setState({
+      fruits: newFruits
+    })
+  }
 
 //////////////////////////Add New Function//////////////////////////////////
 
@@ -48,6 +57,28 @@ class Body extends React.Component {
     })
   };
 
+  /////////////////////////Edit Fruit/////////////////////////////
+
+  handleUpdate(fruit){
+    fetch(`http://localhost:3000/api/v1/fruits/${fruit.id}`, 
+    {
+      method: 'PUT',
+      body: JSON.stringify({fruit: fruit}),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then((response) => { 
+        this.updateFruit(fruit)
+      })
+  }
+  updateFruit(fruit){
+    let newFruits = this.state.fruits.filter((f) => f.id !== fruit.id)
+    newFruits.push(fruit)
+    this.setState({
+      fruits: newFruits
+    })
+  }
+
   /////////////////////////////////////////////
 
 componentDidMount(){
@@ -55,12 +86,12 @@ componentDidMount(){
       .then((response) => {return response.json()})
       .then((data) => {this.setState({ fruits: data }) });
   };
-  
+
 render(){
     return(
       <div>
         <NewFruit handleFormSubmit={this.handleFormSubmit}/>
-        <AllFruits fruits={this.state.fruits} handleDelete={this.handleDelete}/>
+        <AllFruits fruits={this.state.fruits} handleDelete={this.handleDelete} handleUpdate = {this.handleUpdate}/>
       </div>
     )
   }
